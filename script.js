@@ -69,6 +69,94 @@ function affineDecrypt(ciphertext, a, b) {
     return decrypted;
 }
 
+
+// Playfair Cipher Decryption
+function playfairDecrypt(ciphertext, key) {
+    // Prepare the grid by removing duplicates and filling the alphabet
+    key = key.toUpperCase().replace(/[^A-Z]/g, '').replace(/J/g, 'I');
+    let grid = [];
+    let alphabet = 'ABCDEFGHIKLMNOPQRSTUVWXYZ';  // No 'J' in the Playfair grid
+    let used = new Set();
+
+    // Add the key's characters first
+    for (let char of key) {
+        if (!used.has(char)) {
+            grid.push(char);
+            used.add(char);
+        }
+    }
+
+    // Add remaining letters of the alphabet to the grid
+    for (let char of alphabet) {
+        if (!used.has(char)) {
+            grid.push(char);
+            used.add(char);
+        }
+    }
+
+    // Generate the Playfair grid (5x5)
+    let grid2D = [];
+    for (let i = 0; i < 5; i++) {
+        grid2D.push(grid.slice(i * 5, i * 5 + 5));
+    }
+
+    // Split the ciphertext into digraphs
+    ciphertext = ciphertext.toUpperCase().replace(/[^A-Z]/g, '');
+    if (ciphertext.length % 2 !== 0) ciphertext += 'X'; // Add X if odd length
+
+    let digraphs = [];
+    for (let i = 0; i < ciphertext.length; i += 2) {
+        let pair = ciphertext[i] + ciphertext[i + 1];
+        if (pair[0] === pair[1]) {
+            digraphs.push(pair[0] + 'X'); // Same letter in a pair, add 'X'
+            i--; // Don't move forward by 2 characters
+        } else {
+            digraphs.push(pair);
+        }
+    }
+
+    // Decrypt each digraph
+    let decrypted = '';
+    for (let digraph of digraphs) {
+        let [a, b] = digraph;
+        let aRow, aCol, bRow, bCol;
+
+        // Find positions of the letters in the grid
+        for (let i = 0; i < 5; i++) {
+            for (let j = 0; j < 5; j++) {
+                if (grid2D[i][j] === a) {
+                    aRow = i;
+                    aCol = j;
+                }
+                if (grid2D[i][j] === b) {
+                    bRow = i;
+                    bCol = j;
+                }
+            }
+        }
+
+        // Same row: move left
+        if (aRow === bRow) {
+            aCol = (aCol - 1 + 5) % 5;
+            bCol = (bCol - 1 + 5) % 5;
+        }
+        // Same column: move up
+        else if (aCol === bCol) {
+            aRow = (aRow - 1 + 5) % 5;
+            bRow = (bRow - 1 + 5) % 5;
+        }
+        // Rectangle: swap columns
+        else {
+            [aCol, bCol] = [bCol, aCol];
+        }
+
+        // Add decrypted pair to the result
+        decrypted += grid2D[aRow][aCol] + grid2D[bRow][bCol];
+    }
+
+    return decrypted;
+}
+
 // Main Analysis Function
 document.getElementById("analyze").addEventListener("click", () => {
     const cipher = document.getElementById("cipher").value;
@@ -88,7 +176,8 @@ document.getElementById("analyze").addEventListener("click", () => {
         const b = parseInt(prompt("Enter the 'b' value:"));
         result = affineDecrypt(ciphertext, a, b);
     } else if (cipher === "playfair") {
-        result = "Playfair Cipher decryption is not yet implemented.";
+       const key = prompt("Enter the Playfair key:");
+        result = playfairDecrypt(ciphertext, key);
     }
 
     resultsDiv.textContent = result;
