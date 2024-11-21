@@ -1,0 +1,37 @@
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cryptanalysis Tool</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Cryptanalysis Tool</h1>
+        
+        <label for="cipher">Select Cipher:</label>
+        <select id="cipher">
+            <option value="caesar">Caesar Cipher</option>
+            <option value="substitution">Substitution Cipher</option>
+            <option value="vigenere">Vigenère Cipher</option>
+            <option value="affine">Affine Cipher</option>
+            <option value="playfair">Playfair Cipher</option>
+        </select>
+
+        <label for="ciphertext">Ciphertext:</label>
+        <textarea id="ciphertext" placeholder="Enter the ciphertext here..."></textarea>
+
+        <div id="additional-inputs"></div>
+
+        <button id="analyze">Analyze</button>
+
+        <div id="output">
+            <h2>Results</h2>
+            <div id="results"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
